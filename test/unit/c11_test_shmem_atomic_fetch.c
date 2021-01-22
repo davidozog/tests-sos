@@ -46,6 +46,7 @@ enum op { FETCH = 0, ATOMIC_FETCH, CTX_ATOMIC_FETCH, ATOMIC_FETCH_NBI,
 #define DEPRECATED_FETCH shmem_atomic_fetch
 #endif
 
+#ifdef HAVE_NB_ATOMICS
 #define SHMEM_NBI_OPS_CASES(OP, TYPE)                           \
       case ATOMIC_FETCH_NBI:                                    \
         shmem_atomic_fetch_nbi(&val, &remote,                   \
@@ -57,6 +58,9 @@ enum op { FETCH = 0, ATOMIC_FETCH, CTX_ATOMIC_FETCH, ATOMIC_FETCH_NBI,
                                 &remote, (mype + 1) % npes);    \
         shmem_quiet();                                          \
         break;
+#else
+#define SHMEM_NBI_OPS_CASES(OP, TYPE)
+#endif /* HAVE_NB_ATOMICS */
 
 #define TEST_SHMEM_FETCH(OP, TYPE)                              \
   do {                                                          \
@@ -145,6 +149,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_FETCH(CTX_ATOMIC_FETCH, size_t);
   TEST_SHMEM_FETCH(CTX_ATOMIC_FETCH, ptrdiff_t);
 
+#ifdef HAVE_NB_ATOMICS
   TEST_SHMEM_FETCH(ATOMIC_FETCH_NBI, float);
   TEST_SHMEM_FETCH(ATOMIC_FETCH_NBI, double);
   TEST_SHMEM_FETCH(ATOMIC_FETCH_NBI, int);
@@ -174,6 +179,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_FETCH(CTX_ATOMIC_FETCH_NBI, uint64_t);
   TEST_SHMEM_FETCH(CTX_ATOMIC_FETCH_NBI, size_t);
   TEST_SHMEM_FETCH(CTX_ATOMIC_FETCH_NBI, ptrdiff_t);
+#endif /* HAVE_NB_ATOMICS */
 
   shmem_finalize();
   return rc;

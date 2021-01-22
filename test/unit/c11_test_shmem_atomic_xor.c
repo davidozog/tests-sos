@@ -45,7 +45,7 @@ enum op { XOR = 0, CTX_XOR, FETCH_XOR, CTX_FETCH_XOR, FETCH_XOR_NBI,
  * PEth bit of the input value is set to 1 and all other bits are set to 0.
  * The result has the NPES least significant bits cleared, 111...000...b.
  */
-
+#ifdef HAVE_NB_ATOMICS
 #define SHMEM_NBI_OPS_CASES(OP, TYPE)                                   \
         case FETCH_XOR_NBI:                                             \
           shmem_atomic_fetch_xor_nbi(&old, &remote,                     \
@@ -67,6 +67,9 @@ enum op { XOR = 0, CTX_XOR, FETCH_XOR, CTX_FETCH_XOR, FETCH_XOR_NBI,
             rc = EXIT_FAILURE;                                          \
           }                                                             \
           break;
+#else
+#define SHMEM_NBI_OPS_CASES(OP, TYPE)
+#endif /*HAVE_NB_ATOMICS*/
 
 #define TEST_SHMEM_XOR(OP, TYPE)                                        \
   do {                                                                  \
@@ -153,6 +156,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_XOR(CTX_FETCH_XOR, uint32_t);
   TEST_SHMEM_XOR(CTX_FETCH_XOR, uint64_t);
 
+#ifdef HAVE_NB_ATOMICS
   TEST_SHMEM_XOR(FETCH_XOR_NBI, unsigned int);
   TEST_SHMEM_XOR(FETCH_XOR_NBI, unsigned long);
   TEST_SHMEM_XOR(FETCH_XOR_NBI, unsigned long long);
@@ -168,6 +172,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_XOR(CTX_FETCH_XOR_NBI, int64_t);
   TEST_SHMEM_XOR(CTX_FETCH_XOR_NBI, uint32_t);
   TEST_SHMEM_XOR(CTX_FETCH_XOR_NBI, uint64_t);
+#endif /* HAVE_NB_ATOMICS */
 
   shmem_finalize();
   return rc;

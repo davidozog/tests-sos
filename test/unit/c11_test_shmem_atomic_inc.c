@@ -49,6 +49,7 @@ enum op { INC = 0, ATOMIC_INC, CTX_ATOMIC_INC, FINC, ATOMIC_FETCH_INC,
 #define DEPRECATED_FINC shmem_atomic_fetch_inc
 #endif
 
+#ifdef HAVE_NB_ATOMICS
 #define SHMEM_NBI_OPS_CASES(OP, TYPE)                                   \
         case ATOMIC_FETCH_INC_NBI:                                      \
           shmem_atomic_fetch_inc_nbi(&old, &remote, i);                 \
@@ -68,6 +69,9 @@ enum op { INC = 0, ATOMIC_INC, CTX_ATOMIC_INC, FINC, ATOMIC_FETCH_INC,
             rc = EXIT_FAILURE;                                          \
           }                                                             \
           break;
+#else
+#define SHMEM_NBI_OPS_CASES(OP, TYPE)
+#endif /*HAVE_NB_ATOMICS*/
 
 #define TEST_SHMEM_INC(OP, TYPE)                                        \
   do {                                                                  \
@@ -215,6 +219,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_INC(CTX_ATOMIC_FETCH_INC, size_t);
   TEST_SHMEM_INC(CTX_ATOMIC_FETCH_INC, ptrdiff_t);
 
+#ifdef HAVE_NB_ATOMICS
   TEST_SHMEM_INC(ATOMIC_FETCH_INC_NBI, int);
   TEST_SHMEM_INC(ATOMIC_FETCH_INC_NBI, long);
   TEST_SHMEM_INC(ATOMIC_FETCH_INC_NBI, long long);
@@ -240,6 +245,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_INC(CTX_ATOMIC_FETCH_INC_NBI, uint64_t);
   TEST_SHMEM_INC(CTX_ATOMIC_FETCH_INC_NBI, size_t);
   TEST_SHMEM_INC(CTX_ATOMIC_FETCH_INC_NBI, ptrdiff_t);
+#endif /* HAVE_NB_ATOMICS */
 
   shmem_finalize();
   return rc;

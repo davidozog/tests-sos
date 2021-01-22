@@ -45,6 +45,7 @@ enum op { AND = 0, CTX_AND, FETCH_AND, CTX_FETCH_AND, FETCH_AND_NBI,
  * The result has the NPES least significant bits cleared, 111...000...b.
  */
 
+#ifdef HAVE_NB_ATOMICS
 #define SHMEM_NBI_OPS_CASES(OP, TYPE, TYPENAME)                         \
         case FETCH_AND_NBI:                                             \
           shmem_##TYPENAME##_atomic_fetch_and_nbi(&old, &remote,        \
@@ -66,6 +67,9 @@ enum op { AND = 0, CTX_AND, FETCH_AND, CTX_FETCH_AND, FETCH_AND_NBI,
             rc = EXIT_FAILURE;                                          \
           }                                                             \
           break;
+#else
+#define SHMEM_NBI_OPS_CASES(OP, TYPE, TYPENAME)
+#endif /* HAVE_NB_ATOMICS */
 
 #define TEST_SHMEM_AND(OP, TYPE, TYPENAME)                              \
   do {                                                                  \
@@ -153,6 +157,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_AND(CTX_FETCH_AND, uint32_t, uint32);
   TEST_SHMEM_AND(CTX_FETCH_AND, uint64_t, uint64);
 
+#ifdef HAVE_NB_ATOMICS
   TEST_SHMEM_AND(FETCH_AND_NBI, unsigned int, uint);
   TEST_SHMEM_AND(FETCH_AND_NBI, unsigned long, ulong);
   TEST_SHMEM_AND(FETCH_AND_NBI, unsigned long long, ulonglong);
@@ -168,6 +173,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_AND(CTX_FETCH_AND_NBI, int64_t, int64);
   TEST_SHMEM_AND(CTX_FETCH_AND_NBI, uint32_t, uint32);
   TEST_SHMEM_AND(CTX_FETCH_AND_NBI, uint64_t, uint64);
+#endif /* HAVE_NB_ATOMICS */
   
   shmem_finalize();
   return rc;

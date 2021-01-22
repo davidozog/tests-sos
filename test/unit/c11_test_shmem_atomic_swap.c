@@ -46,6 +46,7 @@ enum op { SWAP = 0, ATOMIC_SWAP, CTX_ATOMIC_SWAP, ATOMIC_SWAP_NBI,
 #define DEPRECATED_SWAP shmem_atomic_swap
 #endif
 
+#ifdef HAVE_NB_ATOMICS
 #define SHMEM_NBI_OPS_CASES(OP, TYPE)                                   \
         case ATOMIC_SWAP_NBI:                                           \
             shmem_atomic_swap_nbi(&old, &remote,                        \
@@ -55,6 +56,9 @@ enum op { SWAP = 0, ATOMIC_SWAP, CTX_ATOMIC_SWAP, ATOMIC_SWAP_NBI,
             shmem_atomic_swap_nbi(SHMEM_CTX_DEFAULT, &old, &remote,     \
                                    (TYPE)mype, (mype + 1) % npes);      \
             break;
+#else
+#define SHMEM_NBI_OPS_CASES(OP, TYPE)
+#endif /* HAVE_NB_ATOMICS */
 
 #define TEST_SHMEM_SWAP(OP, TYPE)                                       \
   do {                                                                  \
@@ -150,6 +154,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_SWAP(CTX_ATOMIC_SWAP, size_t);
   TEST_SHMEM_SWAP(CTX_ATOMIC_SWAP, ptrdiff_t);
 
+#ifdef HAVE_NB_ATOMICS
   TEST_SHMEM_SWAP(ATOMIC_SWAP_NBI, float);
   TEST_SHMEM_SWAP(ATOMIC_SWAP_NBI, double);
   TEST_SHMEM_SWAP(ATOMIC_SWAP_NBI, int);
@@ -179,6 +184,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_SWAP(CTX_ATOMIC_SWAP_NBI, uint64_t);
   TEST_SHMEM_SWAP(CTX_ATOMIC_SWAP_NBI, size_t);
   TEST_SHMEM_SWAP(CTX_ATOMIC_SWAP_NBI, ptrdiff_t);
+#endif /* HAVE_NB_ATOMICS */
 
   shmem_finalize();
   return rc;

@@ -80,13 +80,11 @@ check_PROGRAMS = \
 	c11_test_shmem_atomic_swap \
 	c11_test_shmem_atomic_cswap \
 	c11_test_shmem_wait_until \
-	c11_test_shmem_wait_until_vector \
 	c11_shmem_wait_until_all_any_some \
+	c11_test_shmem_wait_until_vector \
 	c11_test_shmem_test \
-	c11_shmem_test_vector \
 	c11_shmem_test_all_any_some \
-	c11_shmem_team_collective_types \
-	c11_shmem_team_reduce \
+	c11_shmem_test_vector \
 	get_nbi \
 	put_nbi \
 	rma_coverage \
@@ -109,7 +107,18 @@ check_PROGRAMS = \
 	put_signal \
 	put_signal_nbi \
 	signal_fetch \
-	signal_wait_until \
+	signal_wait_until
+
+if HAVE_NB_ATOMICS
+check_PROGRAMS += \
+	atomic_nbi \
+	fadd_nbi
+endif
+
+if HAVE_TEAMS
+check_PROGRAMS += \
+	c11_shmem_team_collective_types \
+	c11_shmem_team_reduce \
 	shmem_team_b2b_collectives \
 	shmem_team_collect_active_set \
 	shmem_team_max \
@@ -118,9 +127,8 @@ check_PROGRAMS = \
 	shmem_team_split_2d \
 	shmem_team_translate \
 	shmem_team_reduce \
-	shmem_team_get_config \
-	atomic_nbi \
-	fadd_nbi
+	shmem_team_get_config 
+endif
 
 # Temporarily disabled: Global exit test tends to fail with MPI-PMI
 if !USE_PMI_MPI
@@ -151,8 +159,13 @@ check_PROGRAMS += \
 	cxx_test_shmem_atomic_swap \
 	cxx_test_shmem_atomic_cswap \
 	cxx_test_shmem_wait_until \
-	cxx_test_shmem_test \
+	cxx_test_shmem_test
+
+if HAVE_NB_ATOMICS
+check_PROGRAMS += \
 	cxx_shmem_test_all
+endif
+
 endif
 
 if HAVE_FORTRAN

@@ -115,6 +115,9 @@ if test "$FC" != "" ; then
   AC_FC_WRAPPERS
 fi
 
+nb_atomcs=
+teams=
+
 dnl check that c/c++/fortran compilers can compile SHMEM code
 AC_MSG_CHECKING([C compiler can compile SHMEM code])
 AC_LANG_PUSH([C])
@@ -130,6 +133,34 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
                    [AC_MSG_RESULT([yes])],
                    [AC_MSG_RESULT([no])
                     AC_MSG_ERROR([C compiler cannot compile SHMEM code])])
+
+AC_MSG_CHECKING([SHMEM runtime supports NB-Atomics])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+                   #include <shmem.h>
+                   long data;
+                   ]], [[
+                        shmem_init();
+                        shmem_atomic_fetch_and_nbi(&data,&data 0,0);
+                        shmem_finalize();
+                        ]]
+                   )],
+                   [AC_MSG_RESULT([yes])
+                    nb_atomcs="yes"],
+                   [AC_MSG_RESULT([no])])
+
+AC_MSG_CHECKING([SHMEM runtime supports teams])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+                   #include <shmem.h>
+                   long data;
+                   ]], [[
+                        shmem_init();
+                        shmem_team_t new_team = SHMEM_TEAM_WORLD;
+                        shmem_finalize();
+                        ]]
+                   )],
+                   [AC_MSG_RESULT([yes])
+                    teams="yes"],
+                   [AC_MSG_RESULT([no])])
 AC_LANG_POP([C])
 
 if test "$enable_c11_checks" != "no" ; then
@@ -210,6 +241,12 @@ fi
 if test "$enable_debug" = "yes" ; then
   CFLAGS="$CFLAGS -g"
 fi
+
+if test "$nb_atomcs" != ""; then
+    CFLAGS="$CFLAGS -DHAVE_NB_ATOMICS"
+fi
+AM_CONDITIONAL([HAVE_TEAMS], [test "$teams" != ""])
+AM_CONDITIONAL([HAVE_NB_ATOMICS], [test "$nb_atomcs" != ""])
 
 AM_CONDITIONAL([HAVE_FORTRAN], [test "$FC" != ""])
 AM_CONDITIONAL([HAVE_CXX], [test "$enable_cxx" != "no" ])

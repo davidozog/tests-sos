@@ -45,7 +45,7 @@ enum op { OR = 0, CTX_OR, FETCH_OR, CTX_FETCH_OR, FETCH_OR_NBI,
  * PEth bit of the input value is set to 1 and all other bits are set to 0.
  * The result has the NPES least significant bits set, 000...111...b.
  */
-
+#if HAVE_NB_ATOMICS
 #define SHMEM_NBI_OPS_CASES(OP, TYPE)                                   \
         case FETCH_OR_NBI:                                              \
           shmem_atomic_fetch_or_nbi(&old, &remote,                      \
@@ -67,6 +67,9 @@ enum op { OR = 0, CTX_OR, FETCH_OR, CTX_FETCH_OR, FETCH_OR_NBI,
             rc = EXIT_FAILURE;                                          \
           }                                                             \
           break;
+#else
+#define SHMEM_NBI_OPS_CASES(OP, TYPE)
+#endif /* HAVE_NB_ATOMICS */
 
 #define TEST_SHMEM_OR(OP, TYPE)                                         \
   do {                                                                  \
@@ -155,6 +158,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_OR(CTX_FETCH_OR, uint32_t);
   TEST_SHMEM_OR(CTX_FETCH_OR, uint64_t);
 
+#ifdef HAVE_NB_ATOMICS
   TEST_SHMEM_OR(FETCH_OR_NBI, unsigned int);
   TEST_SHMEM_OR(FETCH_OR_NBI, unsigned long);
   TEST_SHMEM_OR(FETCH_OR_NBI, unsigned long long);
@@ -170,6 +174,7 @@ int main(int argc, char* argv[]) {
   TEST_SHMEM_OR(CTX_FETCH_OR_NBI, int64_t);
   TEST_SHMEM_OR(CTX_FETCH_OR_NBI, uint32_t);
   TEST_SHMEM_OR(CTX_FETCH_OR_NBI, uint64_t);
+#endif /* HAVE_NB_ATOMICS */
 
   shmem_finalize();
   return rc;

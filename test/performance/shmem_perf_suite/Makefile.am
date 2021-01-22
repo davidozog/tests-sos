@@ -21,9 +21,13 @@ check_PROGRAMS = \
 	shmem_bibw_get_perf \
 	shmem_bibw_get_perf_nb \
 	shmem_bw_atomics_perf \
-	shmem_bibw_atomics_perf \
+	shmem_bibw_atomics_perf
+
+if HAVE_NB_ATOMICS
+check_PROGRAMS += \
 	shmem_bw_nb_atomics_perf \
 	shmem_bibw_nb_atomics_perf
+endif
 
 if HAVE_OPENMP
 check_PROGRAMS += \
