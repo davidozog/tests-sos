@@ -57,7 +57,6 @@ check_PROGRAMS = \
 	bigput \
 	bigget \
 	ns \
-	bcast_flood \
 	lfinc \
 	shmem_info \
 	query_thread \
@@ -124,6 +123,11 @@ check_PROGRAMS = \
 	shmem_ctx_get_team \
 	atomic_nbi \
 	fadd_nbi
+
+if ENABLE_LENGTHY_TESTS
+check_PROGRAMS += \
+	bcast_flood
+endif
 
 # Temporarily disabled: Global exit test tends to fail with MPI-PMI
 if !USE_PMI_MPI
